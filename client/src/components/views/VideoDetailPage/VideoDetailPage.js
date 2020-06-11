@@ -3,9 +3,11 @@ import {Row, Col, List, Avatar} from 'antd'
 import Axios from 'axios'
 import SideVideo from './Sections/SideVideo'
 import Subscribe from './Sections/Subscribe'
+import Comment from './Sections/Comment'
 
 
 function VideoDetailPage(props) {
+    const [Comments, setComments] = useState([])
     const videoId=props.match.params.videoId;
     const variable={videoId:videoId};
 
@@ -17,21 +19,36 @@ function VideoDetailPage(props) {
                 if(response.data.success){
                     setVideoDetail(response.data.videoDetail)
                 }else{
-                    alert('비디오 정보를 가져오기에 실패했습니다..')
+                    alert('비디오 정보를 가져오기에 실패했습니다.')
+                }
+            })
+
+        Axios.post('/api/comment/getComments',variable)
+            .then(response=>{
+                if(response.data.success){
+                    setComments(response.data.comments)
+                }else{
+                    alert('코멘트 정보를 가져오는 데 실패했습니다.')
                 }
             })
     }, [])
 
+    const refreshFunction=(newComment)=>{
+        setComments(Comments.concat(newComment))
+    }
+
     if(VideoDetail.writer){     // image 정보를 가져오기 전에 화면이 rendering 되어서 error >>  writer가 존재할 경우 rendering 되도록 한 것.
+        const subscribeButton = VideoDetail.writer._id !== localStorage.getItem('userId') && <Subscribe userTo={VideoDetail.writer._id} userFrom={localStorage.getItem('userId')}/>
+
+        
         return (
             <div>
                 <Row gutter={[16, 16]}>
                     <Col lg={18} xs={24}>
                         <div style={{width:'100%', padding:'3rem 4rem'}}>
                             <video style={{width:'100%'}} src={`http://localhost:5000/${VideoDetail.filePath}`} controls/>
-    
                             <List.Item
-                                actions = {[<Subscribe />]}
+                                actions = {[subscribeButton]}
                             >
                                 <List.Item.Meta
                                     avatar={<Avatar src={VideoDetail.writer.image}/>}
@@ -39,6 +56,8 @@ function VideoDetailPage(props) {
                                     description={VideoDetail.description}
                                 />
                             </List.Item>
+
+                            <Comment refreshFunction={refreshFunction} postId={videoId} commentLists={Comments}/>
                         </div>
                     </Col>
                     <Col lg={6} xs={24}>

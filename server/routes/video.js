@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Video } = require("../models/Video");
+const {Subscriber} = require('../models/Subscriber');
 
 const { auth } = require("../middleware/auth");
 const multer = require("multer");
@@ -61,6 +62,30 @@ router.get('/getVideos', (req, res)=>{
             res.status(200).json({success:true, videos})
         })
 }) 
+
+router.post('/getSubscriptionVideos', (req, res)=>{
+    
+    // 구독하고 있는 writer 조회
+    
+    Subscriber.find({'userFrom':req.body.userFrom})
+        .populate('userFrom')
+        .exec((err, subscriberInfo)=>{
+            if(err) return res.status(400).send(err);
+            
+            let subscribedUser=[];
+            subscriberInfo.map((subscriber, i)=>{
+                subscribedUser.push(subscriber.userTo);
+            })
+
+            // writer들의 비디오를 가져온다.
+            Video.find({writer:{$in: subscribedUser}})
+                .populate('writer')
+                .exec((err, videos)=>{
+                    if(err) return res.status(400).send(err);
+                    return res.status(200).json({success:true, videos})
+                })
+        })
+})
 
 router.post('/getVideoDetail', (req, res)=>{
     Video.findOne({"_id" : req.body.videoId})
