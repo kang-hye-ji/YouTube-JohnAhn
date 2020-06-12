@@ -8,25 +8,29 @@ function ReplyComment(props) {
     useEffect(() => {
         let commentNumber=0;
         props.commentLists.map((comment, i)=>{
-            if(comment.responseTo===props.parentCommentId){
+            if(comment.responseTo === props.parentCommentId){
                 commentNumber++
             }
         })
         setChildCommentNumber(commentNumber)
-    }, [ props.commentLists ])
+    }, [props.commentLists, props.parentCommentId])
 
     const renderReplyComment =(parentCommentId)=>{
         props.commentLists.map((comment,index)=>(
             <React.Fragment>
                 {
-                    comment.responseTo===parentCommentId &&
+                    comment.responseTo === parentCommentId &&
                     <div style={{width:'80%', marginLeft:'40px'}}>
                         <SingleComment refreshFunction={props.refreshFunction} postId={props.postId} comment={comment}/>
                         <ReplyComment  refreshFunction={props.refreshFunction} commentLists={props.commentLists} postId={props.postId} parentCommentId={comment._id}/>
+                        
                     </div>
+                    
                 }
             </React.Fragment>
-    ))
+            
+        ))
+        
     }
 
     const onHandleChange=()=>{
@@ -35,14 +39,16 @@ function ReplyComment(props) {
 
     return (
         <div>
-            {ChildCommentNumber>0 &&
+            {ChildCommentNumber > 0 &&
                 <p style={{fontSize:'14px', margin:0, color:'gray'}} onClick={onHandleChange}>
                     View {ChildCommentNumber} more comment(s)
                 </p>
             }
             {OpenReplyComments &&
                 renderReplyComment(props.parentCommentId)
+                
             }
+            
         </div>
     )
 }

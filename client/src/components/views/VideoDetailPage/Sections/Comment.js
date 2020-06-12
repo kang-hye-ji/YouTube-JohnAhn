@@ -15,7 +15,7 @@ function Comment(props) {
     const onSubmit=(event)=>{
         event.preventDefault();
 
-        let variable={
+        const variable={
             writer:user.userData._id,
             postId:videoId,
             content:commentValue
@@ -23,7 +23,6 @@ function Comment(props) {
         Axios.post('/api/comment/saveComment',variable)
             .then(response=>{
                 if(response.data.success){
-                    console.log(response.data.result)
                     setcommentValue("")
                     props.refreshFunction(response.data.result)
                 }else{
@@ -31,6 +30,10 @@ function Comment(props) {
                 }
             })
     }
+    props.commentLists.map((comment, index)=>{
+        console.log(comment)
+    })
+    
 
     return (
         <div>
@@ -38,15 +41,14 @@ function Comment(props) {
             <p>Replies</p>
             <hr/>
             {/* Comment Lists */}
-            {props.commentLists && 
-                props.commentLists.map((comment,i)=>(
-                    (!comment.responseTo &&
-                        <React.Fragment>
-                            <SingleComment refreshFunction={props.refreshFunction} postId={videoId} comment={comment}/>
-                            <ReplyComment refreshFunction={props.refreshFunction} parentCommentId={comment._id} commentLists={props.commentLists} postId={videoId}/>
-                        </React.Fragment>
-                    )
-                ))}
+            {props.commentLists && props.commentLists.map((comment, index)=>(
+                (!comment.responseTo &&
+                    <React.Fragment>
+                        <SingleComment refreshFunction={props.refreshFunction} postId={props.postId} comment={comment}/>
+                        <ReplyComment refreshFunction={props.refreshFunction} commentLists={props.commentLists} postId={props.postId} parentCommentId={comment._id}/>
+                    </React.Fragment>
+                )
+            ))}
 
             {/* Root Comment Form */}
             <form style={{display:'flex'}} onSubmit={onSubmit}>
