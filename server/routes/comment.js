@@ -9,7 +9,7 @@ const {Comment} = require('../models/Comment')
 
 router.post('/saveComment', (req, res)=>{
     const comment = new Comment(req.body)
-    comment.save((err,commentInfo)=>{
+    comment.save((err,comment)=>{
         if(err) return res.status(400).send(err);
         
         Comment.find({'_id':comment._id})

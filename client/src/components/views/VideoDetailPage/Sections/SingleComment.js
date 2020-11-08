@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {Comment, Avatar, Button, Input} from 'antd';
 import Axios from 'axios';
 import {useSelector} from 'react-redux'
+import LikeDislikes from './LikeDislikes';
 const {TextArea} = Input;
 
 function SingleComment(props) {
@@ -14,7 +15,11 @@ function SingleComment(props) {
     }
 
     const onHandleChange=(event)=>{
-        setCommentValue(event.currentTarget.value)
+        if(user.userData._id){
+            setCommentValue(event.currentTarget.value)
+        }else{
+            alert('로그인(또는 회원가입) 해야 댓글을 입력하실 수 있습니다.')
+        }
     }
 
     const onSubmit=(event)=>{
@@ -26,19 +31,24 @@ function SingleComment(props) {
             content:CommentValue,
             responseTo:props.comment._id
         }
-        Axios.post('/api/comment/saveComment',variables)
-            .then(response=>{
-                if(response.data.success){
-                    setCommentValue("")
-                    setOpenReply(false)
-                    props.refreshFunction(response.data.result)
-                }else{
-                    alert('댓글을 입력하는 데 실패했습니다.')
-                }
-            })
+        if(user.userData._id){
+            Axios.post('/api/comment/saveComment',variables)
+                .then(response=>{
+                    if(response.data.success){
+                        setCommentValue("")
+                        setOpenReply(false)
+                        props.refreshFunction(response.data.result)
+                    }else{
+                        alert('댓글을 입력하는 데 실패했습니다.')
+                    }
+                })
+        }else{
+            alert('로그인(또는 회원가입) 해야 댓글을 입력하실 수 있습니다.')
+        }
     }
 
     const actions=[
+        <LikeDislikes commentId={props.comment._id} userId={localStorage.getItem('userId')}/>,
         <span onClick={onClickReplyOpen} key="comment-basic-reply-to">Reply to</span>
     ]
 
@@ -47,11 +57,11 @@ function SingleComment(props) {
             <Comment
                 actions={actions}
                 author={props.comment.writer.name}
-                avatar={<Avatar src={props.comment.writer.image} alt/>}
+                avatar={<Avatar src={props.comment.writer.image} alt="사용자 이미지"/>}
                 content={<p>{props.comment.content}</p>}
             />
 
-        {OpenReply&&
+        {OpenReply &&
             <form style={{display:'flex'}} onSubmit={onSubmit}>
                 <textarea
                     style={{width:'100%', borderRadius:'5px'}}

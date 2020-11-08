@@ -10,7 +10,11 @@ function Comment(props) {
     const videoId = props.postId;
 
     const handleClick=(event)=>{
-        setcommentValue(event.currentTarget.value)
+        if(user.userData._id){
+            setcommentValue(event.currentTarget.value)
+        }else{
+            alert('로그인(또는 회원가입) 해야 댓글을 입력하실 수 있습니다.')
+        }
     }
     const onSubmit=(event)=>{
         event.preventDefault();
@@ -20,19 +24,20 @@ function Comment(props) {
             postId:videoId,
             content:commentValue
         }
-        Axios.post('/api/comment/saveComment',variable)
-            .then(response=>{
-                if(response.data.success){
-                    setcommentValue("")
-                    props.refreshFunction(response.data.result)
-                }else{
-                    alert('댓글을 입력하는 데 실패했습니다.')
-                }
-            })
+        if(user.userData._id){
+            Axios.post('/api/comment/saveComment',variable)
+                .then(response=>{
+                    if(response.data.success){
+                        setcommentValue("")
+                        props.refreshFunction(response.data.result)
+                    }else{
+                        alert('댓글을 입력하는 데 실패했습니다.')
+                    }
+                })
+        }else{
+            alert('로그인(또는 회원가입) 해야 댓글을 입력하실 수 있습니다.')
+        }
     }
-    props.commentLists.map((comment, index)=>{
-        console.log(comment)
-    })
     
 
     return (

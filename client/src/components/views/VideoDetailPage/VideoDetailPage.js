@@ -4,6 +4,7 @@ import Axios from 'axios'
 import SideVideo from './Sections/SideVideo'
 import Subscribe from './Sections/Subscribe'
 import Comment from './Sections/Comment'
+import LikeDislikes from './Sections/LikeDislikes'
 
 
 function VideoDetailPage(props) {
@@ -36,7 +37,6 @@ function VideoDetailPage(props) {
     const refreshFunction=(newComment)=>{
         setComments(Comments.concat(newComment))
     }
-
     if(VideoDetail.writer){     // image 정보를 가져오기 전에 화면이 rendering 되어서 error >>  writer가 존재할 경우 rendering 되도록 한 것.
         const subscribeButton = VideoDetail.writer._id !== localStorage.getItem('userId') && <Subscribe userTo={VideoDetail.writer._id} userFrom={localStorage.getItem('userId')}/>
 
@@ -48,7 +48,7 @@ function VideoDetailPage(props) {
                         <div style={{width:'100%', padding:'3rem 4rem'}}>
                             <video style={{width:'100%'}} src={`http://localhost:5000/${VideoDetail.filePath}`} controls/>
                             <List.Item
-                                actions = {[subscribeButton]}
+                                actions = {[<LikeDislikes video videoId={videoId} userId={localStorage.getItem('userId')}/>, subscribeButton]}
                             >
                                 <List.Item.Meta
                                     avatar={<Avatar src={VideoDetail.writer.image}/>}
